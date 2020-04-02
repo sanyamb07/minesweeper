@@ -45,7 +45,7 @@ function loss(){
     for(let row=0;row<boardSize;row++){
         for(let col=0;col<boardSize;col++){
             if(board[row+""+col].mined && !board[row+""+col].flagged){
-                $('#'+row+""+col).html( MINE ).css('color', 'black');
+                $('#'+row+""+col).html( MINE ).css('color', 'green');
             }
         }
     }
@@ -61,10 +61,18 @@ function handleclick(id){
                 }else{
                     cell.opened = true;
                     if(cell.neighborMineCount>0){
-                        $("#"+id).text(cell.neighborMineCount);
+                        $("#"+id).html( "" ).css( 'background-image', 'radial-gradient(#FFFFFF,#FFFFFF)');
+                        if(cell.neighborMineCount==1){
+                            $("#"+id).text(cell.neighborMineCount).css('color','red');
+                        }else if(cell.neighborMineCount==2){
+                            $("#"+id).text(cell.neighborMineCount).css('color','blue');
+
+                        }else{
+                            $("#"+id).text(cell.neighborMineCount);
+                        }
                     }else{  
                         $("#"+id).html( "" )
-                                    .css( 'background-image', 'radial-gradient(#e6e6e6,#c9c7c7)');
+                                    .css( 'background-image', 'radial-gradient(#FFFFFF,#FFFFFF)');
     
                         var neighbors = getNeighbors(id);
                         for(var i=0;i<neighbors.length;i++){
@@ -89,7 +97,7 @@ function initializeCells( boardSize ) {
     $( ".cell" ).each( function(){
         $(this).attr( "id", r + "" + column ).css('color', 'black').text("");
         $('#' + r + "" + column ).css('background-image', 
-                                        'radial-gradient(#fff,#e6e6e6)');
+                                        'radial-gradient(#A9A9A9,#A9A9A9)');
         column++;
         if( column >= boardSize )
         {
@@ -203,9 +211,15 @@ function Board(boardSize,minecount){
 
 
 function start(){    
+    clearInterval(initial);
+
     initializeCells(boardSize);
-    
     board = Board(boardSize,mines);
+    stdate = Date.now();
+
+    initial = setInterval(function() {
+        $('#time').text((new Date - stdate) / 1000 + " Seconds");
+    }, 1000);
     return board;
     
 }
@@ -213,11 +227,14 @@ var FLAG = "&#9873;";
 var MINE = "&#9881;";
 var boardSize = 10;
 var mines = 10;
-var timer = 0;
-var timeout;
+
 var minesRemaining=mines;
 gameover = false;
+let stdate=0;
 var board = start();
+
+var initial;
+
 $('#new-game-button').click( function(){
     gameover = false;
     $('#messageBox').text('Make a Move!')
